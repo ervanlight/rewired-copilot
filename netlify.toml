@@ -5,7 +5,7 @@
   # Perintah ini akan membangun frontend Anda menjadi file statis di folder "dist".
   
   
-  publish = "."
+  publish = "dist"
   functions = "netlify/functions"
 
 # --- BAGIAN DI BAWAH INI SUDAH SEMPURNA, JANGAN DIUBAH ---
