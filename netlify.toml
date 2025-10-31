@@ -1,19 +1,15 @@
 # File: netlify.toml
 
 [build]
-  # --- INI BAGIAN YANG ANDA GANTI ---
-  # Perintah ini akan membangun frontend Anda menjadi file statis di folder "dist".
-  
-  
+  # Beritahu Netlify bahwa file publik kita ada di folder "dist".
+  # Ini adalah pengaturan yang paling penting.
   publish = "dist"
+
+  # Folder tempat Anda menyimpan file function .js Anda.
   functions = "netlify/functions"
 
-# --- BAGIAN DI BAWAH INI SUDAH SEMPURNA, JANGAN DIUBAH ---
-# PERBAIKAN TIMEOUT v2.0: Hanya untuk "Otak" AI kita
-[functions."generate"]
-  timeout = 60 # Menaikkan stopwatch HANYA untuk generate.js
-# --- AKHIR PERBAIKAN ---
-
+# Redirects rule untuk Single Page Application (PENTING!)
+# Agar halaman tidak error 404 saat di-refresh.
 [[redirects]]
   from = "/*"
   to = "/index.html"
