@@ -3,9 +3,9 @@
 [build]
   # --- INI BAGIAN YANG ANDA GANTI ---
   # Perintah ini akan membangun frontend Anda menjadi file statis di folder "dist".
-  command = "npm run build"
   
-  publish = "dist"
+  
+  publish = "."
   functions = "netlify/functions"
 
 # --- BAGIAN DI BAWAH INI SUDAH SEMPURNA, JANGAN DIUBAH ---
