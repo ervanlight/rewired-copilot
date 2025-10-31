@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rewired: Listing Composer</title>
+
+  <style>
+    /* CSS v1.0 — font Inter + palet biru/abu-abu + card styles */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#2563eb; /* blue-600 */
+      --accent-2:#0ea5a4; /* teal */
+      --shadow: 0 6px 18px rgba(20,30,60,0.06);
+      --danger-bg: linear-gradient(90deg,#fecaca,#fef3c7); /* red/yellow */
+      --radius:12px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      /* Typographic reset: single system font stack */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+      font-size:16px; /* Base font size */
+      line-height:1.5;
+      background:var(--bg);
+      color:#374151; /* primary text color */
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:36px auto;
+      padding:28px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#60a5fa);
+      box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;
+    }
+  h1{margin:0;font-size:1.8rem;font-weight:800;color:#1F2937;line-height:1.2}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    /* Steps layout */
+    .steps{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .step-container{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(15,23,42,0.04);
+    }
+    .step-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .step-number{
+      width:36px;height:36px;border-radius:8px;background:rgba(37,99,235,0.08);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;
+    }
+  .step-title, h2 { font-size:1.25rem; font-weight:700; color:#1D4ED8; margin-top:2rem; margin-bottom:0.75rem; }
+
+    form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    form .col{display:flex;flex-direction:column;gap:6px}
+    label{font-size:1.125rem;color:#1F2937;font-weight:600}
+    input[type="text"], textarea, select{
+      border:1px solid #D1D5DB;
+      padding:10px 12px;
+      border-radius:4px;
+      font-size:1rem;
+      background:#fff;
+      outline:none;
+      box-shadow:none;
+    }
+    textarea{min-height:80px;resize:vertical;border-radius:4px}
+    input[type="text"]:focus, textarea:focus, select:focus{
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.06);
+      border-color: #60A5FA;
+    }
+    .helper{font-size:12px;color:var(--muted);margin-top:4px}
+
+    /* Guidance box for example inputs */
+    .guidance-box{
+      background-color:#F3F4F6; /* very light gray */
+      color:#333333;
+      padding:10px 12px;
+      margin-top:8px;
+      border-radius:6px;
+      font-size:0.9375rem; /* ~15px */
+      border:1px solid #E5E7EB;
+      line-height:1.5;
+    }
+
+    .guidance-box p{margin:0}
+  .guidance-box strong{font-weight:600;color:#222}
+
+    /* Field suggestion (moved from guidance-box "Saran") */
+    p.field-suggestion{
+      font-size:1rem; /* 16px */
+      font-weight:400;
+      color:#4B5563;
+      margin-top:6px;
+      margin-bottom:8px;
+    }
+
+    /* Font normalization: ensure consistent family and smoothing across UI elements */
+    html, body, input, textarea, select, button, label, .card, .card h3, .output-item p, .guidance-box, p.field-suggestion, .output-text, pre {
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Base font-weight normalization */
+    body, input, textarea, select, button { font-weight: 400; }
+
+    /* Output item divider and typography */
+    #output-judul-list { list-style: none; padding: 0; margin: 0; }
+    .output-item {
+      border-bottom: 1px solid #E5E7EB;
+      padding-top: 16px;
+      padding-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .output-item:last-child { border-bottom: none; }
+    .output-item p { color: #374151; line-height: 1.4; margin: 0; }
+
+    /* Standardize output typography: body text */
+    .output-text, .output-item p, .card pre {
+      font-size: 1rem; /* 16px */
+      font-weight: 400;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    /* Card heading (sub-step) */
+    .card h3 {
+      font-size: 1.125rem; /* 18px */
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1F2937; /* Reinforced color */
+    }
+
+  /* Ensure individual title text is not bold */
+  .output-item p { font-weight: 400; }
+
+    /* SEO keywords styling (secondary) */
+    .seo-keywords {
+      font-size: 0.875rem;
+      font-style: italic;
+      color: #9CA3AF;
+      margin-top: 8px;
+    }
+
+    /* Portal content readability */
+    .portal-content { line-height: 1.5; white-space: pre-wrap; }
+
+    /* Error visual style for required fields */
+    .error {
+      border: 2px solid #DC2626 !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+      transition: border-color 0.3s ease;
+    }
+
+    /* Button */
+    .actions{display:flex;gap:12px;align-items:center}
+    button#generate-button{
+      background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;
+      box-shadow:0 8px 20px rgba(37,99,235,0.12);
+    }
+    button#generate-button:active{transform:translateY(1px)}
+
+    /* Output cards grid */
+    .outputs{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;margin-top:12px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:12px;padding:14px;border:1px solid rgba(15,23,42,0.04);
+      box-shadow:var(--shadow);min-height:120px;display:flex;flex-direction:column;
+    }
+  .card h3{margin:0 0 8px;font-size:1.125rem;font-weight:600;color:#1F2937}
+    pre{
+      margin:0;
+      /* Use the same UI font as the rest of the app for consistent output */
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      font-size: 16px;
+      color: #374151;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .audit-card{
+      background:var(--danger-bg);
+      border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,0.06);
+      color:#7f1d1d;
+    }
+
+    /* responsive */
+    @media (max-width:900px){
+      .outputs{grid-template-columns:1fr}
+      form .row{grid-template-columns:1fr}
+    }
+    
+    /* Mobile & small tablet adjustments */
+    @media (max-width: 768px) {
+      /* Make form rows single-column and add more vertical spacing */
+      form .row {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      /* Ensure outputs are single column on mobile */
+      .outputs {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      /* Reduce main title and lead sizes for mobile */
+      h1 { font-size: 1.5rem; }
+      p.lead { font-size: 0.9rem; }
+
+      /* Step titles slightly smaller */
+      .step-title { font-size: 1.125rem; }
+
+      /* Reduce container horizontal padding for full-width feel */
+      .container { padding: 16px; }
+
+      /* Slightly reduce card padding for compact layout */
+      .card { padding: 12px; }
+
+      /* Keep good spacing in step headers */
+      .step-header { gap: 8px; }
+
+      /* Field suggestion spacing — ensure readable on small screens */
+      p.field-suggestion { margin-bottom: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">RC</div>
+      <div>
+  <h1>Rewired: Listing Composer</h1>
+  <p class="lead">Input data listing Anda, klik Generate, dan dapatkan paket amunisi konten siap pakai untuk pemasaran properti.</p>
+      </div>
+    </header>
+
+    <div class="steps">
+      <!-- Langkah 1: Form Input -->
+      <section class="step-container" id="step-1">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <div>
+            <div class="step-title">Langkah 1 — Isi Data Listing</div>
+            <div class="helper">Berikan informasi seakurat mungkin. AI dilarang berasumsi.</div>
+          </div>
+        </div>
+
+        <form id="listing-form" autocomplete="off">
+          <div class="row">
+            <div class="col">
+              <label for="tipe-properti">Tipe Properti</label>
+              <p class="field-suggestion">Masukkan 1-3 tipe properti. AI akan fokus pada ini.</p>
+              <input id="tipe-properti" type="text" />
+              <div class="guidance-box"><p><strong>Contoh:</strong> Gudang, Rumah, Ruko, Apartemen, Kavling Tanah, Pabrik, Kantor, Ruang Usaha, Villa, Kos-kosan</p></div>
+            </div>
+
+            <div class="col">
+              <label for="target-audiens">Target Audiens</label>
+              <p class="field-suggestion">Siapa target pembeli Anda? Ini membantu AI menentukan gaya bahasa.</p>
+              <input id="target-audiens" type="text" />
+              <div class="guidance-box"><p><strong>Contoh:</strong> Investor, UMKM, Pengusaha logistik, Keluarga muda, Pasangan baru menikah, Mahasiswa, Karyawan, Ekspatriat</p></div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="row">
+            <div class="col">
+              <label for="data-teknis">Data Teknis</label>
+              <p class="field-suggestion">Fokus pada data fisik (ukuran, akses, legalitas).</p>
+              <textarea id="data-teknis"></textarea>
+              <div class="guidance-box"><p><strong>Contoh:</strong> LT 1200m2 / LB 800m2, SHM + IMB, Akses tol 15 menit, Listrik 5500W, Bebas banjir, Hadap Selatan, Air PDAM</p></div>
+            </div>
+
+            <div class="col">
+              <label for="harga">Harga</label>
+              <p class="field-suggestion">Masukkan harga properti. AI akan memformatnya. Anda bisa menambah info (Nego, KPR, dll).</p>
+              <input id="harga" name="harga" type="text" />
+              <div class="guidance-box"><p><strong>Contoh:</strong> 1.5 M Nego, 800jt (KPR BTN DP 10%), 10jt/meter, 35jt/tahun (Sewa), Over kredit 500jt</p></div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="row">
+            <div class="col">
+              <label for="fitur-unik">Fitur Unik</label>
+              <p class="field-suggestion">Apa 'permata' properti ini? Fitur yang paling menonjol untuk dijual.</p>
+              <textarea id="fitur-unik"></textarea>
+              <div class="guidance-box"><p><strong>Contoh:</strong> Kolam renang pribadi, View danau, 5 menit dari pasar, Security 24 jam, Desain <em>high-ceiling</em>, Ada <em>passive income</em>, <em>Smart home system</em>, <em>Rooftop garden</em></p></div>
+            </div>
+            <div class="col"></div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div>
+            <label for="nadaSuara">Nada Suara</label>
+            <p class="field-suggestion">Pilih gaya penulisan yang diinginkan:</p>
+            <select id="nadaSuara">
+              <option value="Profesional">Profesional</option>
+              <option value="Persuasif">Persuasif</option>
+              <option value="Informatif">Informatif</option>
+              <option value="Santai">Santai</option>
+            </select>
+            <div class="guidance-box">
+              <p><strong>Opsi Populer:</strong></p>
+              <ul style="margin:8px 0 0 16px;padding:0;line-height:1.4;">
+                <li><strong>Profesional:</strong> (Cocok untuk B2B, Gudang, Pabrik)</li>
+                <li><strong>Persuasif:</strong> (Cocok untuk Jual Rumah/Apartemen, Fokus pada emosi)</li>
+                <li><strong>Informatif:</strong> (Cocok untuk data teknis, Fokus pada fakta)</li>
+                <li><strong>Santai:</strong> (Cocok untuk Kos-kosan, Kontrakan, atau properti dengan target audiens anak muda)</li>
+              </ul>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Langkah 2: Tombol Generate -->
+      <section class="step-container" id="step-2">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <div>
+            <div class="step-title">Langkah 2 — Generate</div>
+            <div class="helper">Klik untuk meminta paket konten dari Otak AI.</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="generate-button">Generate Konten</button>
+        </div>
+      </section>
+
+      <!-- Langkah 3: Output -->
+      <section class="step-container" id="langkah-3" style="display: none;">
+        <div class="step-header">
+          <div class="step-number">3</div>
+          <div>
+            <div class="step-title">Langkah 3 — Output</div>
+            <div class="helper">Hasil akan muncul di kartu-kartu di bawah. Jika ada error, cek console atau Netlify logs.</div>
+          </div>
+        </div>
+
+        <div class="outputs">
+          <div class="card">
+            <h3>1. Opsi Judul Terbaik (5 Varian)</h3>
+            <ul id="output-judul-list" aria-live="polite"></ul>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <h3 style="margin:0;">2. Amunisi Portal (Lamudi / 99.co / Rumah123)</h3>
+              <button class="copy-button" type="button" aria-label="Copy Portal Content">Copy</button>
+            </div>
+            <div id="output-portal-content" class="output-text">—</div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <h3 style="margin:0;">3. Amunisi Instagram (Caption Storytelling)</h3>
+              <button class="copy-button" type="button" aria-label="Copy IG Content">Copy</button>
+            </div>
+            <pre id="output-ig-content">—</pre>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <h3 style="margin:0;">4. Amunisi TikTok / Reels (Skrip Video P-S-R)</h3>
+              <button class="copy-button" type="button" aria-label="Copy TikTok Content">Copy</button>
+            </div>
+            <pre id="output-tiktok-content">—</pre>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <h3 style="margin:0;">5. Amunisi WhatsApp (Blast & Co-Broking)</h3>
+              <button class="copy-button" type="button" aria-label="Copy WA Content">Copy</button>
+            </div>
+            <pre id="output-wa-content">—</pre>
+          </div>
+
+          <div class="card audit-card">
+            <h3 style="margin:0;">⚡ 6. Audit Risiko (Insight Broker)</h3>
+            <pre id="output-audit-content">—</pre>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
