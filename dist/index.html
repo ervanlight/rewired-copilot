@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rewired: Listing Composer</title>
 
-  <style>
+<style>
     /* CSS v1.0 — font Inter + palet biru/abu-abu + card styles */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
@@ -312,7 +312,52 @@
       border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,0.06);
       color:#7f1d1d;
     }
+    
+    /* --- (MULAI) KODE BARU v4.0 - FINAL & DEFINITIF --- */
+    
+    #output-audit-content {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.5; /* Atur tinggi baris dasar untuk div ini */
+    }
+    
+    #output-audit-content h4 {
+        margin: 0 0 1.2em 0;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
 
+    #output-audit-content .audit-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Target poin audit untuk memberi jarak antar grup */
+    #output-audit-content .audit-item {
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid rgba(127, 29, 29, 0.1);
+    }
+    #output-audit-content .audit-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    /* INI KUNCI UTAMA: Hapus spasi default browser dari paragraf */
+    #output-audit-content .audit-item p {
+        margin: 0; /* Hapus semua margin bawaan */
+        padding: 0;
+    }
+    
+    /* Beri sedikit spasi HANYA pada paragraf yang punya konten */
+    #output-audit-content .audit-item p + p {
+        margin-top: 0.5em; /* Jarak kecil antar "Verifikasi:", "Detail:", "Risiko:" */
+    }
+    
+    /* --- (SELESAI) KODE BARU v4.0 --- */
+    
     /* responsive */
     @media (max-width:900px){
       .outputs{grid-template-columns:1fr}
@@ -541,7 +586,7 @@
 
           <div class="card audit-card">
             <h3 style="margin:0;">⚡ 6. Audit Risiko (Insight Broker)</h3>
-            <pre id="output-audit-content">—</pre>
+            <div id="output-audit-content">—</div>
           </div>
         </div>
       </section>

@@ -1,3 +1,5 @@
+// KODE LENGKAP app.js VERSI FINAL & TERUJI
+
 document.addEventListener('DOMContentLoaded', () => {
   // Form & controls
   const form = document.getElementById('listing-form');
@@ -50,12 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.className = 'copy-inline';
     btn.style.marginLeft = '8px';
     btn.addEventListener('click', async () => {
-      // Try modern clipboard API then fallback to execCommand
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(text);
         } else {
-          // fallback: create temporary textarea
           const ta = document.createElement('textarea');
           ta.value = text;
           document.body.appendChild(ta);
@@ -74,52 +74,30 @@ document.addEventListener('DOMContentLoaded', () => {
     return btn;
   };
 
-  // Parse JSON-in-JSON defensively:
-  // 1) await response.json()
-  // 2) JSON.parse(responseBody.body) (preferred) with fallbacks
   const parseNestedResponse = (responseBody) => {
     if (!responseBody) return null;
-
-    // If responseBody has property 'body' as string -> parse it
     if (typeof responseBody === 'object' && Object.prototype.hasOwnProperty.call(responseBody, 'body')) {
       const inner = responseBody.body;
       if (typeof inner === 'string') {
-        try {
-          return JSON.parse(inner);
-        } catch (e) {
-          // If parsing fails, return the raw string
-          return inner;
-        }
+        try { return JSON.parse(inner); } catch (e) { return inner; }
       }
-      // body already an object
       return inner;
     }
-
-    // If responseBody is a string (rare) try parse once
     if (typeof responseBody === 'string') {
-      try {
-        return JSON.parse(responseBody);
-      } catch (e) {
-        return responseBody;
-      }
+      try { return JSON.parse(responseBody); } catch (e) { return responseBody; }
     }
-
-    // otherwise return as-is
     return responseBody;
   };
 
-  // Render functions (defensive)
   const renderTitles = (kartu_portal) => {
     clearChildren(outputJudulList);
     if (!outputJudulList) return;
-
     if (!kartu_portal || typeof kartu_portal !== 'object') {
       const li = document.createElement('li');
       li.textContent = 'kartu_portal tidak tersedia';
       outputJudulList.appendChild(li);
       return;
     }
-
     const keys = ['judul_1','judul_2','judul_3','judul_4','judul_5'];
     let any = false;
     keys.forEach(k => {
@@ -127,25 +105,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (v && String(v).trim().length) {
         any = true;
         const li = document.createElement('li');
-        // wrapper class for styling dividers and spacing
         li.className = 'output-item';
         li.style.display = 'flex';
         li.style.alignItems = 'center';
         li.style.justifyContent = 'space-between';
-
         const title = document.createElement('p');
         title.textContent = v;
         title.style.flex = '1';
         title.style.margin = '0';
         li.appendChild(title);
-
         const btn = createCopyButton(v);
         li.appendChild(btn);
-
         outputJudulList.appendChild(li);
       }
     });
-
     if (!any) {
       const li = document.createElement('li');
       li.textContent = 'Tidak ditemukan judul_1..judul_5 pada kartu_portal';
@@ -166,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Helper: escape HTML to safely insert user/model content into innerHTML
   const escapeHtml = (unsafe) => {
     if (unsafe == null) return '';
     return String(unsafe)
@@ -177,15 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   };
 
-  // Main generate handler
   if (generateButton) {
     generateButton.addEventListener('click', async () => {
       setStatus('', false);
-
-      // store previous button text for later restore
       const prevText = generateButton.textContent;
-
-      // Custom required-field validation (IDs in kebab-case)
       const requiredFields = [
         { id: 'tipe-properti', name: 'Tipe Properti' },
         { id: 'target-audiens', name: 'Target Audiens' },
@@ -193,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'harga', name: 'Harga' },
         { id: 'fitur-unik', name: 'Fitur Unik' }
       ];
-
       const emptyFields = [];
       requiredFields.forEach(f => {
         const el = document.getElementById(f.id);
@@ -205,10 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (el) el.classList.remove('error');
         }
       });
-
       if (emptyFields.length > 0) {
         alert('Wajib Diisi: ' + emptyFields.join(', '));
-        // focus first empty field
         const firstEmpty = requiredFields.find(f => {
           const el = document.getElementById(f.id);
           return !(el && String((el.value || '')).trim());
@@ -217,25 +181,18 @@ document.addEventListener('DOMContentLoaded', () => {
           const el = document.getElementById(firstEmpty.id);
           if (el && typeof el.focus === 'function') el.focus();
         }
-        return; // stop execution
+        return;
       }
-
-      // collect form values (after validation)
       const tipeProperti = (document.getElementById('tipe-properti') || {}).value || '';
       const targetAudiens = (document.getElementById('target-audiens') || {}).value || '';
       const dataTeknis = (document.getElementById('data-teknis') || {}).value || '';
       const fiturUnik = (document.getElementById('fitur-unik') || {}).value || '';
       const nadaSuara = (document.getElementById('nadaSuara') || {}).value || '';
       const harga = (document.getElementById('harga') || {}).value || '';
-
       const payload = { tipeProperti, targetAudiens, dataTeknis, fiturUnik, nadaSuara, harga };
-
-      // UX: disable button
       generateButton.disabled = true;
       generateButton.textContent = 'Meminta AI...';
-
-  // hide langkah 3 while generating (page starts with langkah-3 hidden)
-  if (langkah3Container) langkah3Container.style.display = 'none';
+      if (langkah3Container) langkah3Container.style.display = 'none';
 
       try {
         const resp = await fetch('/.netlify/functions/generate', {
@@ -243,64 +200,45 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-            // MUST parse outer JSON first
-            let responseBody;
-            if (!resp.ok) {
-              // read response text/body for debugging
-              const errTxt = await resp.text().catch(() => '');
-              console.error('Generate API returned non-OK:', resp.status, errTxt);
-              setStatus('Server error: ' + (errTxt || resp.statusText), true);
-              // still try to parse for any useful payload
-              try { responseBody = JSON.parse(errTxt); } catch { responseBody = errTxt; }
-            } else {
-              try { responseBody = await resp.json(); } catch (err) {
-                // fallback: try text
-                const txt = await resp.text();
-                try { responseBody = JSON.parse(txt); } catch { responseBody = txt; }
-              }
-            }
+        let responseBody;
+        if (!resp.ok) {
+          const errTxt = await resp.text().catch(() => '');
+          console.error('Generate API returned non-OK:', resp.status, errTxt);
+          setStatus('Server error: ' + (errTxt || resp.statusText), true);
+          try { responseBody = JSON.parse(errTxt); } catch { responseBody = errTxt; }
+        } else {
+          try { responseBody = await resp.json(); } catch (err) {
+            const txt = await resp.text();
+            try { responseBody = JSON.parse(txt); } catch { responseBody = txt; }
+          }
+        }
+        
+        const data = parseNestedResponse(responseBody);
+        console.log("DATA MENTAH DARI AI:", data); // Kamera pengintai kita
 
-        // Then parse inner JSON: JSON.parse(responseBody.body)
-  const data = parseNestedResponse(responseBody);
-
-        // Defensive: ensure object
         if (!data || typeof data !== 'object') {
           setStatus('Response tidak sesuai format JSON yang diharapkan dari generate.js', true);
-          // show raw
           setPreSafe(outputPortal, typeof data === 'string' ? data : JSON.stringify(data));
-          renderTitles(null);
-          // fill placeholders for other cards
-          setPreSafe(outputIG, null);
-          setPreSafe(outputTiktok, null);
-          setPreSafe(outputWA, null);
-          setPreSafe(outputAudit, null);
+          renderTitles(null); setPreSafe(outputIG, null); setPreSafe(outputTiktok, null); setPreSafe(outputWA, null); setPreSafe(outputAudit, null);
           return;
         }
 
-        // Extract cards defensively
         const kartu_portal = data.kartu_portal ?? null;
         const kartu_ig = data.kartu_ig ?? null;
         const kartu_tiktok = data.kartu_tiktok ?? null;
-        const kartu_fb = data.kartu_fb ?? null;
         const kartu_wa = data.kartu_wa ?? null;
-        const kartu_audit = data.kartu_audit ?? null;
+        const audit_risiko = data.audit_risiko ?? null;
 
-        // 1. Titles (judul_1..5)
         renderTitles(kartu_portal);
 
-        // 2. Portal content: deskripsi + seo_keywords
         if (kartu_portal && (kartu_portal.deskripsi || kartu_portal.seo_keywords)) {
-          // Render portal description and SEO keywords as HTML with safe escaping
           const descHtml = kartu_portal.deskripsi ? '<div class="portal-content">' + escapeHtml(kartu_portal.deskripsi) + '</div>' : '';
           const seoHtml = kartu_portal.seo_keywords ? '<div class="seo-keywords">SEO Keywords: ' + escapeHtml(kartu_portal.seo_keywords) + '</div>' : '';
-          if (outputPortal) {
-            outputPortal.innerHTML = descHtml + seoHtml;
-          }
+          if (outputPortal) outputPortal.innerHTML = descHtml + seoHtml;
         } else {
           if (outputPortal) outputPortal.textContent = 'kartu_portal tidak lengkap atau tidak tersedia';
         }
 
-        // 3. IG: caption + hashtags
         if (kartu_ig) {
           const caption = kartu_ig.caption || '';
           const hashtags = kartu_ig.hashtags || kartu_ig.hashtag || '';
@@ -310,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
           setPreSafe(outputIG, 'kartu_ig tidak tersedia');
         }
 
-        // 4. TikTok: hooks + skrip_psr
         if (kartu_tiktok) {
           const hooks = [];
           if (kartu_tiktok.hook_1) hooks.push('Hook 1: ' + kartu_tiktok.hook_1);
@@ -322,29 +259,42 @@ document.addEventListener('DOMContentLoaded', () => {
           setPreSafe(outputTiktok, 'kartu_tiktok tidak tersedia');
         }
 
-        // 5. WA
         if (kartu_wa) {
           setPreSafe(outputWA, typeof kartu_wa === 'string' ? kartu_wa : JSON.stringify(kartu_wa, null, 2));
         } else {
           setPreSafe(outputWA, 'kartu_wa tidak tersedia');
         }
 
-        // 6. Audit (string of bullet points)
-        if (kartu_audit) {
-          // kartu_audit expected to be a single string with lines starting '-'
-          setPreSafe(outputAudit, typeof kartu_audit === 'string' ? kartu_audit : JSON.stringify(kartu_audit, null, 2));
+        // --- INI BLOK YANG SUDAH DIPERBAIKI ---
+        if (audit_risiko && Array.isArray(audit_risiko.points) && audit_risiko.points.length > 0) {
+          clearChildren(outputAudit);
+          const titleElement = document.createElement('h4');
+          titleElement.textContent = `⚡ ${audit_risiko.title}`;
+          outputAudit.appendChild(titleElement);
+          const listElement = document.createElement('ul');
+          listElement.className = 'audit-list';
+          audit_risiko.points.forEach(point => {
+            const itemElement = document.createElement('li');
+            itemElement.className = 'audit-item';
+            itemElement.innerHTML = `
+                <p><strong>Verifikasi:</strong> ${escapeHtml(point.verifikasi)}</p>
+                <p><strong>Detail Analisis:</strong> ${escapeHtml(point.detail)}</p>
+                <p><strong>Potensi Risiko:</strong> ${escapeHtml(point.risiko)}</p>
+            `;
+            listElement.appendChild(itemElement);
+          });
+          outputAudit.appendChild(listElement);
         } else {
-          setPreSafe(outputAudit, 'kartu_audit tidak tersedia');
+          setPreSafe(outputAudit, 'Audit Risiko tidak tersedia atau format data salah.');
         }
+        // --- AKHIR DARI BLOK YANG DIPERBAIKI ---
 
         setStatus('Generate selesai', false);
-  // show langkah 3 (dashboard) so user can see outputs
-  if (langkah3Container) langkah3Container.style.display = 'block';
+        if (langkah3Container) langkah3Container.style.display = 'block';
 
       } catch (error) {
         console.error('Error generate:', error);
         setStatus('Terjadi error saat meminta generate: ' + (error && error.message ? error.message : String(error)), true);
-        // show langkah 3 so user can inspect any partial/raw output
         if (langkah3Container) langkah3Container.style.display = 'block';
       } finally {
         generateButton.disabled = false;
