@@ -50,12 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.className = 'copy-inline';
     btn.style.marginLeft = '8px';
     btn.addEventListener('click', async () => {
+      // Try modern clipboard API then fallback to execCommand
       try {
-        await navigator.clipboard.writeText(text);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // fallback: create temporary textarea
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
         const prev = btn.textContent;
         btn.textContent = 'Copied';
         setTimeout(() => (btn.textContent = prev), 1200);
       } catch (e) {
+        console.error('Clipboard copy failed', e);
         setStatus('Gagal menyalin clipboard', true);
       }
     });
@@ -231,19 +243,25 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
-        // MUST parse outer JSON first
-        let responseBody;
-        try {
-          responseBody = await resp.json();
-        } catch (err) {
-          // fallback: try text
-          const txt = await resp.text();
-          try { responseBody = JSON.parse(txt); } catch { responseBody = txt; }
-        }
+            // MUST parse outer JSON first
+            let responseBody;
+            if (!resp.ok) {
+              // read response text/body for debugging
+              const errTxt = await resp.text().catch(() => '');
+              console.error('Generate API returned non-OK:', resp.status, errTxt);
+              setStatus('Server error: ' + (errTxt || resp.statusText), true);
+              // still try to parse for any useful payload
+              try { responseBody = JSON.parse(errTxt); } catch { responseBody = errTxt; }
+            } else {
+              try { responseBody = await resp.json(); } catch (err) {
+                // fallback: try text
+                const txt = await resp.text();
+                try { responseBody = JSON.parse(txt); } catch { responseBody = txt; }
+              }
+            }
 
         // Then parse inner JSON: JSON.parse(responseBody.body)
-        const data = parseNestedResponse(responseBody);
+  const data = parseNestedResponse(responseBody);
 
         // Defensive: ensure object
         if (!data || typeof data !== 'object') {

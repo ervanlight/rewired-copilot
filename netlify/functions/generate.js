@@ -151,7 +151,7 @@ exports.handler = async (event, context) => {
     const masterPrompt = createMasterPrompt(inputBroker);
 
     const payload = {
-      model: "gpt-4o",
+      model: process.env.OPENAI_MODEL || "gpt-4o",
       messages: [
         { role: "system", content: masterPrompt },
         {
@@ -159,9 +159,9 @@ exports.handler = async (event, context) => {
           content: "Generate the JSON v1.3 package now. Output MUST be a single valid JSON object only. DO NOT output any extra commentary."
         }
       ],
-      response_format: { type: "json_object" },
+      // removed non-standard response_format to improve compatibility
       temperature: 0.2,
-      max_tokens: 1500
+      max_tokens: 2000
     };
 
     const response = await fetch(API_URL, {
@@ -185,21 +185,32 @@ exports.handler = async (event, context) => {
 
     const data = await response.json();
 
+    // Robust extraction: handle chat response formats where message.content
+    // may be a JSON string or plain text. Try to parse JSON when possible.
     let generatedContent = null;
     try {
-      if (Array.isArray(data.choices) && data.choices.length > 0) {
-        const first = data.choices[0];
-        if (first.message && first.message.content) {
-          generatedContent = first.message.content;
-        } else if (first.content) {
-          generatedContent = first.content;
-        } else if (first.text) {
-          generatedContent = first.text;
+      const first = Array.isArray(data.choices) && data.choices.length > 0 ? data.choices[0] : null;
+      let raw = null;
+      if (first) {
+        if (first.message && first.message.content) raw = first.message.content;
+        else if (first.content) raw = first.content;
+        else if (first.text) raw = first.text;
+        else raw = first;
+      } else {
+        raw = data;
+      }
+
+      // If raw is a string that contains JSON, try parse it
+      if (typeof raw === 'string') {
+        const t = raw.trim();
+        if ((t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'))) {
+          try { generatedContent = JSON.parse(t); } catch (e) { generatedContent = raw; }
         } else {
-          generatedContent = first;
+          // Not a JSON string — return as-is
+          generatedContent = raw;
         }
       } else {
-        generatedContent = data;
+        generatedContent = raw;
       }
     } catch (e) {
       generatedContent = data;

@@ -117,6 +117,96 @@
       margin-bottom:8px;
     }
 
+  /* --- A. STYLING KARTU INDIVIDU (.field-card-wrapper) --- */
+
+  .field-card-wrapper {
+    background-color: #FFFFFF; /* Latar belakang putih bersih */
+    border: 1px solid #E5E7EB; /* Garis abu-abu sangat halus */
+    border-radius: 8px; /* Sudut membulat yang lembut */
+    padding: 20px; /* Ruang bernapas di dalam kartu */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); /* Bayangan sangat tipis untuk kesan mengangkat */
+        
+    /* PENTING: Atur margin bawah untuk jarak antar kartu */
+    margin-bottom: 24px; /* Jarak yang konsisten antar kartu */
+    box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+  }
+
+  /* --- B. PENYESUAIAN SPASI DI DALAM KARTU --- */
+
+  /* Judul Field (Target Audiens, Data Teknis, dll.) */
+  .field-card-wrapper .field-label {
+    margin-bottom: 4px; /* Sedikit jarak ke saran */
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600; /* Semi-Bold */
+    color: #1F2937;
+    display: block; /* Agar label mengambil baris penuh */
+  }
+
+  /* Teks Saran (Siapa target pembeli Anda?) */
+  .field-card-wrapper .field-suggestion {
+    margin-top: 0; /* Hapus margin atas jika ada */
+    margin-bottom: 16px; /* Jarak yang lebih jelas ke input field */
+    font-size: 1rem; /* 16px */
+    font-weight: 400; /* Normal */
+    color: #4B5563;
+  }
+
+  /* Input Field (Textarea dan Input) */
+  .field-card-wrapper input[type="text"],
+  .field-card-wrapper textarea,
+  .field-card-wrapper select { /* Tambahkan select untuk dropdown Nada Suara */
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px; /* Sudut sedikit membulat */
+    font-size: 1rem; /* 16px */
+    color: #374151;
+    box-sizing: border-box;
+    /* Reset margin bawaan jika ada */
+    margin-top: 0;
+    margin-bottom: 0; 
+  }
+
+  /* Box Contoh */
+  .field-card-wrapper .guidance-box {
+    margin-top: 16px; /* Jarak yang lebih jelas dari input field */
+    background-color: #F8F8FA; /* Warna latar sedikit lebih terang dari kartu utama */
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.9375rem; /* 15px */
+    color: #4B5563;
+  }
+  .field-card-wrapper .guidance-box strong {
+    font-weight: 600; /* Semi-Bold */
+    color: #374151;
+  }
+
+
+  /* --- C. PENYESUAIAN GRID UTAMA --- */
+
+  /* Hapus margin-bottom yang berlebihan dari .form-grid-container */
+  /* Karena .field-card-wrapper sudah memiliki margin-bottom sendiri */
+  .form-grid-container {
+    /* Pastikan pengaturan grid 2 kolom dengan jarak yang konsisten */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px; /* Jarak horizontal antar kolom */
+    /* Penting: Hapus atau setel margin-bottom ini ke 0 jika field-card-wrapper sudah ada */
+    margin-bottom: 0; 
+  }
+
+  /* Pastikan input textarea seperti Data Teknis punya min-height yang layak */
+  .field-card-wrapper textarea:not(#fitur-unik) {
+    min-height: 80px; /* Contoh minimum height */
+    resize: vertical; /* Izinkan resize vertikal */
+  }
+
+  /* Untuk Fitur Unik */
+  .field-card-wrapper textarea#fitur-unik {
+    min-height: 120px;
+  }
+
     /* Font normalization: ensure consistent family and smoothing across UI elements */
     html, body, input, textarea, select, button, label, .card, .card h3, .output-item p, .guidance-box, p.field-suggestion, .output-text, pre {
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -197,6 +287,12 @@
       border-radius:12px;padding:14px;border:1px solid rgba(15,23,42,0.04);
       box-shadow:var(--shadow);min-height:120px;display:flex;flex-direction:column;
     }
+    /* Input card specifics (match visual style for form cards) */
+    .card-header { margin-bottom: 8px; }
+    .card-title { margin: 0; font-size: 1.125rem; font-weight: 600; color: #1F2937; }
+    .card-description { margin: 6px 0 0; color: #4B5563; font-size: 0.95rem; }
+    .card-textarea { width: 100%; min-height: 90px; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+    .card-example { margin-top: 12px; background: #F8F8FA; padding: 10px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.95rem; color: #4B5563; }
   .card h3{margin:0 0 8px;font-size:1.125rem;font-weight:600;color:#1F2937}
     pre{
       margin:0;
@@ -282,35 +378,29 @@
         <form id="listing-form" autocomplete="off">
           <div class="row">
             <div class="col">
-              <label for="tipe-properti">Tipe Properti</label>
-              <p class="field-suggestion">Masukkan 1-3 tipe properti. AI akan fokus pada ini.</p>
-              <input id="tipe-properti" type="text" />
-              <div class="guidance-box"><p><strong>Contoh:</strong> Gudang, Rumah, Ruko, Apartemen, Kavling Tanah, Pabrik, Kantor, Ruang Usaha, Villa, Kos-kosan</p></div>
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Tipe Properti</h3>
+                  <p class="card-description">Masukkan tipe properti. AI akan fokus pada ini.</p>
+                </div>
+                <textarea id="tipe-properti" class="card-textarea"></textarea>
+                <div class="card-example">
+                  <p><strong>Contoh:</strong> Gudang, Rumah, Ruko, Apartemen, Kavling Tanah, Pabrik, Kantor, Ruang Usaha, Villa, Kos-kosan</p>
+                </div>
+              </div>
             </div>
 
             <div class="col">
-              <label for="target-audiens">Target Audiens</label>
-              <p class="field-suggestion">Siapa target pembeli Anda? Ini membantu AI menentukan gaya bahasa.</p>
-              <input id="target-audiens" type="text" />
-              <div class="guidance-box"><p><strong>Contoh:</strong> Investor, UMKM, Pengusaha logistik, Keluarga muda, Pasangan baru menikah, Mahasiswa, Karyawan, Ekspatriat</p></div>
-            </div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <div class="row">
-            <div class="col">
-              <label for="data-teknis">Data Teknis</label>
-              <p class="field-suggestion">Fokus pada data fisik (ukuran, akses, legalitas).</p>
-              <textarea id="data-teknis"></textarea>
-              <div class="guidance-box"><p><strong>Contoh:</strong> LT 1200m2 / LB 800m2, SHM + IMB, Akses tol 15 menit, Listrik 5500W, Bebas banjir, Hadap Selatan, Air PDAM</p></div>
-            </div>
-
-            <div class="col">
-              <label for="harga">Harga</label>
-              <p class="field-suggestion">Masukkan harga properti. AI akan memformatnya. Anda bisa menambah info (Nego, KPR, dll).</p>
-              <input id="harga" name="harga" type="text" />
-              <div class="guidance-box"><p><strong>Contoh:</strong> 1.5 M Nego, 800jt (KPR BTN DP 10%), 10jt/meter, 35jt/tahun (Sewa), Over kredit 500jt</p></div>
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Target Audiens</h3>
+                  <p class="card-description">Siapa target pembeli Anda? Ini membantu AI menentukan gaya bahasa.</p>
+                </div>
+                <textarea id="target-audiens" class="card-textarea"></textarea>
+                <div class="card-example">
+                  <p><strong>Contoh:</strong> Investor, UMKM, Pengusaha logistik, Keluarga muda, Pasangan baru menikah, Mahasiswa, Karyawan, Ekspatriat</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -318,10 +408,46 @@
 
           <div class="row">
             <div class="col">
-              <label for="fitur-unik">Fitur Unik</label>
-              <p class="field-suggestion">Apa 'permata' properti ini? Fitur yang paling menonjol untuk dijual.</p>
-              <textarea id="fitur-unik"></textarea>
-              <div class="guidance-box"><p><strong>Contoh:</strong> Kolam renang pribadi, View danau, 5 menit dari pasar, Security 24 jam, Desain <em>high-ceiling</em>, Ada <em>passive income</em>, <em>Smart home system</em>, <em>Rooftop garden</em></p></div>
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Data Teknis</h3>
+                  <p class="card-description">Fokus pada data fisik (ukuran, akses, legalitas).</p>
+                </div>
+                <textarea id="data-teknis" class="card-textarea"></textarea>
+                <div class="card-example">
+                  <p><strong>Contoh:</strong> LT 1200m2 / LB 800m2, SHM + IMB, Akses tol 15 menit, Listrik 5500W, Bebas banjir, Hadap Selatan, Air PDAM</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Harga</h3>
+                  <p class="card-description">Masukkan harga properti. AI akan memformatnya. Anda bisa menambah info (Nego, KPR, dll).</p>
+                </div>
+                <textarea id="harga" name="harga" class="card-textarea"></textarea>
+                <div class="card-example">
+                  <p><strong>Contoh:</strong> 1.5 M Nego, 800jt (KPR BTN DP 10%), 10jt/meter, 35jt/tahun (Sewa), Over kredit 500jt</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="row">
+            <div class="col">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Fitur Unik</h3>
+                  <p class="card-description">Apa 'permata' properti ini? Fitur yang paling menonjol untuk dijual.</p>
+                </div>
+                <textarea id="fitur-unik" class="card-textarea"></textarea>
+                <div class="card-example">
+                  <p><strong>Contoh:</strong> Kolam renang pribadi, View danau, 5 menit dari pasar, Security 24 jam, Desain <em>high-ceiling</em>, Ada <em>passive income</em>, <em>Smart home system</em>, <em>Rooftop garden</em></p>
+                </div>
+              </div>
             </div>
             <div class="col"></div>
           </div>
@@ -371,7 +497,7 @@
           <div class="step-number">3</div>
           <div>
             <div class="step-title">Langkah 3 — Output</div>
-            <div class="helper">Hasil akan muncul di kartu-kartu di bawah. Jika ada error, cek console atau Netlify logs.</div>
+            <div class="helper">Hasil akan muncul di kartu-kartu di bawah.</div>
           </div>
         </div>
 
