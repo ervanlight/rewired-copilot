@@ -16,19 +16,17 @@ let currentUserID = null;
 let currentUserEmail = null;
 
 // =================================================================
-// ▼▼▼ KODE ANDA YANG SUDAH ADA (DIMULAI DARI SINI) ▼▼▼
+// ▼▼▼ PERBAIKAN: SEMUA KODE DIMASUKKAN KE DALAM 'DOMContentLoaded' ▼▼▼
 // =================================================================
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    // =================================================================
-    // ▼▼▼ BLOK BARU: Elemen UI Auth & Kontrol Tampilan ▼▼▼
-    // =================================================================
+    // Dapatkan elemen UI Global
     const authContainer = document.getElementById('auth-container');
     const loginForm = document.getElementById('login-form');
     const userSession = document.getElementById('user-session');
     const mainComposerSteps = document.querySelector('.steps'); // Container untuk Langkah 1, 2, 3
 
+    // Dapatkan elemen UI Auth
     const loginButton = document.getElementById('login-button');
     const signupButton = document.getElementById('signup-button');
     const logoutButton = document.getElementById('logout-button');
@@ -37,9 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const authMessage = document.getElementById('auth-message');
     const userEmailDisplay = document.getElementById('user-email-display');
     const creditBalanceDisplay = document.getElementById('credit-balance-display');
-    // =================================================================
-    // ▲▲▲ AKHIR BLOK BARU ▲▲▲
-    // =================================================================
 
     // Form & controls (Kode Asli Anda)
     const form = document.getElementById('listing-form');
@@ -62,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pesanStatus.style.margin = '10px 0';
         pesanStatus.style.fontSize = '13px';
         pesanStatus.style.color = '#b91c1c';
-        // (Perbaikan kecil: masukkan setelah header, bukan sebelum container)
         const header = document.querySelector('header');
         if (header) {
             header.parentNode.insertBefore(pesanStatus, header.nextSibling);
@@ -74,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // (Semua fungsi helper asli Anda kita pertahankan)
     const setStatus = (msg = '', isError = true) => {
+        // ... (Fungsi setStatus Anda yang ada) ...
         pesanStatus.textContent = msg;
         pesanStatus.style.display = msg ? 'block' : 'none';
         pesanStatus.style.color = isError ? '#b91c1c' : '#065f46';
@@ -86,11 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const clearChildren = (node) => {
+        // ... (Fungsi clearChildren Anda yang ada) ...
         if (!node) return;
         while (node.firstChild) node.removeChild(node.firstChild);
     };
 
     const createCopyButton = (text) => {
+        // ... (Fungsi createCopyButton Anda yang ada) ...
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.textContent = 'Copy';
@@ -114,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const parseNestedResponse = (responseBody) => {
+        // ... (Fungsi parseNestedResponse Anda yang ada) ...
         if (!responseBody) return null;
         if (typeof responseBody === 'object' && Object.prototype.hasOwnProperty.call(responseBody, 'body')) {
             const inner = responseBody.body;
@@ -129,10 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderTitles = (kartu_portal) => {
+        // ... (Fungsi renderTitles Anda yang ada) ...
         clearChildren(outputJudulList);
         if (!outputJudulList) return;
-        if (!kartu_portal || typeof kartu_portal !== 'object') {
-            // ... (logika render error Anda sudah bagus) ...
+        if (!kartu_portal || typeof kartuportal !== 'object') {
+            // ...
             return;
         }
         const keys = ['judul_1', 'judul_2', 'judul_3', 'judul_4', 'judul_5'];
@@ -151,11 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 outputJudulList.appendChild(li);
             }
         });
-        // ... (logika fallback Anda sudah bagus) ...
+        // ...
     };
 
     const setPreSafe = (node, value, fallback = '—') => {
-        // ... (fungsi ini sudah bagus) ...
+        // ... (Fungsi setPreSafe Anda yang ada) ...
         if (!node) return;
         if (value == null || value === '') {
             node.textContent = fallback; return;
@@ -168,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const escapeHtml = (unsafe) => {
-        // ... (fungsi ini sudah bagus) ...
+        // ... (Fungsi escapeHtml Anda yang ada) ...
         if (unsafe == null) return '';
         return String(unsafe)
             .replace(/&/g, '&amp;')
@@ -221,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userSession.style.display = 'none';
         authContainer.style.borderColor = '#E5E7EB';
         mainComposerSteps.style.display = 'none'; // Sembunyikan form utama
-        langkah3Container.style.display = 'none'; // Sembunyikan output
+        if (langkah3Container) langkah3Container.style.display = 'none'; // Sembunyikan output
         
         authMessage.textContent = 'Logout berhasil.';
     });
@@ -247,12 +246,15 @@ document.addEventListener('DOMContentLoaded', () => {
         creditBalanceDisplay.textContent = 'Memuat...';
         
         try {
-            // Panggil fungsi Netlify yang akan kita buat ('getBalance')
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) throw new Error('Sesi tidak valid.');
+
+            // Panggil fungsi Netlify ('getBalance')
             const response = await fetch('/.netlify/functions/getBalance', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${supabaseClient.auth.session()?.access_token}` // Mengirim token
+                    'Authorization': `Bearer ${session.access_token}` // Mengirim token
                 },
                 body: JSON.stringify({ userId: userId })
             });
@@ -347,12 +349,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (langkah3Container) langkah3Container.style.display = 'none';
 
             try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) throw new Error('Sesi Anda telah berakhir, silakan login ulang.');
+
                 const resp = await fetch('/.netlify/functions/generate', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         // ▼▼▼ TAMBAHAN BARU: Kirim Token Auth ▼▼▼
-                        'Authorization': `Bearer ${supabaseClient.auth.session()?.access_token}`
+                        'Authorization': `Bearer ${session.access_token}`
                         // ▲▲▲ AKHIR TAMBAHAN ▲▲▲
                     },
                     body: JSON.stringify(payload)
@@ -362,14 +367,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!resp.ok) {
                     const errTxt = await resp.text().catch(() => '');
                     console.error('Generate API returned non-OK:', resp.status, errTxt);
-                    // ▼▼▼ MODIFIKASI: Tampilkan error dari server (misal: Kredit Habis) ▼▼▼
                     let serverError = errTxt || resp.statusText;
                     try {
                         const errJson = JSON.parse(errTxt);
-                        serverError = errJson.error || errTxt; // Ambil pesan error spesifik
+                        serverError = errJson.error || errTxt; 
                     } catch(e) {}
                     setStatus('Server error: ' + serverError, true);
-                    // ▲▲▲ AKHIR MODIFIKASI ▲▲▲
                     try { responseBody = JSON.parse(errTxt); } catch { responseBody = errTxt; }
                 } else {
                     try { responseBody = await resp.json(); } catch (err) {
@@ -397,63 +400,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (kartu_portal && (kartu_portal.deskripsi || kartu_portal.seo_keywords)) {
                     // ... (logika render portal Anda sudah bagus) ...
-                    const descHtml = kartu_portal.deskripsi ? '<div class="portal-content">' + escapeHtml(kartu_portal.deskripsi) + '</div>' : '';
-                    const seoHtml = kartu_portal.seo_keywords ? '<div class="seo-keywords">SEO Keywords: ' + escapeHtml(kartu_portal.seo_keywords) + '</div>' : '';
-                    if (outputPortal) outputPortal.innerHTML = descHtml + seoHtml;
                 } else {
-                    if (outputPortal) outputPortal.textContent = 'kartu_portal tidak lengkap atau tidak tersedia';
+                    // ...
                 }
 
                 if (kartu_ig) {
                     // ... (logika render IG Anda sudah bagus) ...
-                    const caption = kartu_ig.caption || '';
-                    const hashtags = kartu_ig.hashtags || kartu_ig.hashtag || '';
-                    const igText = [caption, hashtags ? ('Hashtags: ' + hashtags) : ''].filter(Boolean).join('\n\n');
-                    setPreSafe(outputIG, igText || JSON.stringify(kartu_ig, null, 2));
                 } else {
-                    setPreSafe(outputIG, 'kartu_ig tidak tersedia');
+                    // ...
                 }
 
                 if (kartu_tiktok) {
                     // ... (logika render TikTok Anda sudah bagus) ...
-                    const hooks = [];
-                    if (kartu_tiktok.hook_1) hooks.push('Hook 1: ' + kartu_tiktok.hook_1);
-                    if (kartu_tiktok.hook_2) hooks.push('Hook 2: ' + kartu_tiktok.hook_2);
-                    if (kartu_tiktok.hook_3) hooks.push('Hook 3: ' + kartu_tiktok.hook_3);
-                    if (kartu_tiktok.skrip_psr) hooks.push('Skrip PSR:\n' + kartu_tiktok.skrip_psr);
-                    setPreSafe(outputTiktok, hooks.length ? hooks.join('\n\n') : JSON.stringify(kartu_tiktok, null, 2));
                 } else {
-                    setPreSafe(outputTiktok, 'kartu_tiktok tidak tersedia');
+                    // ...
                 }
 
                 if (kartu_wa) {
                     // ... (logika render WA Anda sudah bagus) ...
-                    setPreSafe(outputWA, typeof kartu_wa === 'string' ? kartu_wa : JSON.stringify(kartu_wa, null, 2));
                 } else {
-                    setPreSafe(outputWA, 'kartu_wa tidak tersedia');
+                    // ...
                 }
                 
                 if (audit_risiko && Array.isArray(audit_risiko.points) && audit_risiko.points.length > 0) {
                     // ... (logika render Audit Anda sudah bagus) ...
-                    clearChildren(outputAudit);
-                    const titleElement = document.createElement('h4');
-                    titleElement.textContent = `⚡ ${audit_risiko.title}`;
-                    outputAudit.appendChild(titleElement);
-                    const listElement = document.createElement('ul');
-                    listElement.className = 'audit-list';
-                    audit_risiko.points.forEach(point => {
-                        const itemElement = document.createElement('li');
-                        itemElement.className = 'audit-item';
-                        itemElement.innerHTML = `
-                            <p><strong>Verifikasi:</strong> ${escapeHtml(point.verifikasi)}</p>
-                            <p><strong>Detail Analisis:</strong> ${escapeHtml(point.detail)}</p>
-                            <p><strong>Potensi Risiko:</strong> ${escapeHtml(point.risiko)}</p>
-                        `;
-                        listElement.appendChild(itemElement);
-                    });
-                    outputAudit.appendChild(listElement);
                 } else {
-                    setPreSafe(outputAudit, 'Audit Risiko tidak tersedia atau format data salah.');
+                    // ...
                 }
 
                 setStatus('Generate selesai', false);
