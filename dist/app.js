@@ -1,5 +1,5 @@
 // ▼▼▼ GANTI DENGAN KUNCI PUBLIK (ANON) SUPABASE ANDA ▼▼▼
-const SUPABASE_URL = https://fdokqnojzeldydncigfp.supabase.co;
+const SUPABASE_URL = 'https://fdokqnojzeldydncigfp.supabase.co';
 const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2txbm9qemVsZHlkbmNpZ2ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MDEwOTMsImV4cCI6MjA3NzQ3NzA5M30.xzGbeYSi7RcjQgee97qYwC_oisFrZrdL-K0TOeH5QdE;
 // ▲▲▲ GANTI DENGAN KUNCI PUBLIK (ANON) SUPABASE ANDA ▲▲▲
 

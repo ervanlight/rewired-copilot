@@ -13,7 +13,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // (Kode 'const fetch = ...' Anda yang lama dimulai di sini)
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 /**
  * createMasterPrompt(input) — "Otak" v1.3 (Final)
