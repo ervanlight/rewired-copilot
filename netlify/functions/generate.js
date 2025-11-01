@@ -1,3 +1,18 @@
+// ▼▼▼ PASTE BLOK BARU INI DI ATAS SEMUANYA ▼▼▼
+const { createClient } = require('@supabase/supabase-js');
+
+// --- Inisialisasi Klien Supabase (Menggunakan Kunci Rahasia dari Netlify Env) ---
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Kredensial Supabase (URL atau Service Key) tidak ditemukan.');
+}
+const supabase = createClient(supabaseUrl, supabaseKey);
+// ▲▲▲ AKHIR BLOK BARU ▲▲▲
+
+// (Kode 'const fetch = ...' Anda yang lama dimulai di sini)
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 /**
@@ -198,6 +213,46 @@ KELUARKAN HANYA SATU JSON FINAL YANG VALID SESUAI SPESIFIKASI DI ATAS. JANGAN ME
 `.trim();
 }
 
+// ▼▼▼ PASTE FUNGSI HELPER BARU INI DI SINI ▼▼▼
+/**
+ * Mengecek saldo kredit pengguna di Supabase.
+ * Jika saldo > 0, kurangi 1.
+ * Jika saldo = 0 atau user tidak ditemukan, lempar (throw) error.
+ */
+async function checkAndDecrementCredit(userId) {
+    // 1. Ambil data kredit pengguna
+    const { data: userData, error: fetchError } = await supabase
+        .from('user_credits')
+        .select('credits_balance')
+        .eq('user_id', userId)
+        .single(); // .single() = Hanya 1 baris, atau error jika tidak ada
+
+    if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+            throw new Error('Data kredit pengguna tidak ditemukan. Hubungi admin.');
+        }
+        throw new Error('Gagal memverifikasi pengguna: ' + fetchError.message);
+    }
+
+    // 2. Cek Saldo
+    if (userData.credits_balance <= 0) {
+        throw new Error('Kredit Anda habis. Silakan lakukan top-up.');
+    }
+
+    // 3. Saldo cukup, kurangi kredit
+    const newBalance = userData.credits_balance - 1;
+    const { error: updateError } = await supabase
+        .from('user_credits')
+        .update({ credits_balance: newBalance })
+        .eq('user_id', userId);
+
+    if (updateError) {
+        throw new Error('Gagal mengupdate saldo kredit: ' + updateError.message);
+    }
+    return true;
+}
+// ▲▲▲ AKHIR FUNGSI HELPER BARU ▲▲▲
+
 exports.handler = async (event, context) => {
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
   const API_URL = 'https://api.openai.com/v1/chat/completions';
@@ -220,6 +275,21 @@ exports.handler = async (event, context) => {
         return {};
       }
     })();
+
+    // ▼▼▼ PASTE SUNTIKAN KODE KREDIT DI SINI ▼▼▼
+        const { userId } = inputBroker; // Ambil userId dari payload
+
+        if (!userId) {
+            return { 
+                statusCode: 401, // Unauthorized
+                body: JSON.stringify({ error: 'Tidak terautentikasi (User ID tidak ada). Silakan login ulang.' }) 
+            };
+        }
+
+        // Cek saldo DAN kurangi. 
+        // Jika gagal (kredit habis/error), otomatis akan 'throw' dan ditangkap oleh blok 'catch'.
+        await checkAndDecrementCredit(userId);
+    // ▲▲▲ AKHIR SUNTIKAN KODE KREDIT ▲▲▲
 
     const masterPrompt = createMasterPrompt(inputBroker);
 
@@ -298,9 +368,9 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('Netlify function error:', error);
     return {
-      statusCode: 500,
+      statusCode: 400,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal Server Error', details: error.message })
+      body: JSON.stringify({ error: error.message || 'Internal Server Error' })
     };
   }
 };

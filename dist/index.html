@@ -8,7 +8,7 @@
 <style>
     /* CSS v1.0 — font Inter + palet biru/abu-abu + card styles */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
+  
     :root{
       --bg:#f5f7fb;
       --card:#ffffff;
@@ -397,7 +397,35 @@
       /* Field suggestion spacing — ensure readable on small screens */
       p.field-suggestion { margin-bottom: 0.5rem; }
     }
+    /* Styling Tombol Copy di Output Cards */
+.copy-button {
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.copy-button:hover {
+  background-color: #E5E7EB;
+}
+.copy-button.copied {
+  background-color: #10B981;
+  color: white;
+  border-color: #10B981;
+}
+
+/* Sembunyikan composer utama (Langkah 1, 2, 3) saat logged out */
+.steps {
+  display: none; /* Akan kita tampilkan via JS setelah login */
+}
+
+/* ▲▲▲ AKHIR CSS BARU ▲▲▲ */
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="container">
@@ -409,7 +437,54 @@
       </div>
     </header>
 
-    <div class="steps">
+  <section class="step-container" id="auth-container">
+    <div id="login-form">
+      <div class="step-header">
+        <div class="step-number" style="background-color: rgba(107, 114, 128, 0.1); color: #4B5563;">🔒</div>
+        <div>
+          <div class="step-title" style="color: #374151; margin-top: 0; margin-bottom: 0;">Masuk atau Daftar (5 Kredit Gratis)</div>
+          <div class="helper" style="margin-top: 4px;">Anda harus login untuk mengakses Composer.</div>
+        </div>
+      </div>
+      
+      <div class="row" style="align-items: flex-end; margin-top: 16px;">
+        <div class="col">
+          <label for="auth-email" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 4px;">Email</label>
+          <input type="email" id="auth-email" placeholder="Email Anda">
+        </div>
+        <div class="col">
+          <label for="auth-password" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 4px;">Password (min. 6 karakter)</label>
+          <input type="password" id="auth-password" placeholder="Password Anda">
+        </div>
+      </div>
+      
+      <div class="actions" style="margin-top: 16px;">
+        <button id="login-button" style="background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; box-shadow: none;">Masuk</button>
+        <button id="signup-button" style="background: #10B981; color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; box-shadow: none;">Daftar</button>
+      </div>
+      <p id="auth-message" style="margin-top: 12px; margin-bottom: 0; color: #DC2626; font-weight: 600;"></p>
+    </div>
+
+    <div id="user-session" style="display:none;">
+      <div class="step-header">
+        <div class="step-number" style="background-color: rgba(22, 163, 74, 0.1); color: #16A34A;">✓</div>
+        <div>
+          <div class="step-title" style="color: #1F2937; margin-top: 0; margin-bottom: 0;">Anda Telah Masuk</div>
+          <p id="user-email-display" class="helper" style="font-size: 1rem; margin-top: 4px; color: var(--muted);">Selamat datang!</p>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+        <div id="credit-balance-display" style="font-size: 1.1rem; font-weight: 700;">
+          Sisa Kredit: <span style="color: var(--accent); font-size: 1.2rem;">Memuat...</span>
+        </div>
+        <button id="logout-button" style="background: #EF4444; color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; box-shadow: none;">Keluar</button>
+      </div>
+    </div>
+  </section>
+  <div class="steps">
+    ```
+
+    
       <!-- Langkah 1: Form Input -->
       <section class="step-container" id="step-1">
         <div class="step-header">
@@ -524,7 +599,7 @@
       <!-- Langkah 2: Tombol Generate -->
       <section class="step-container" id="step-2">
         <div class="step-header">
-          <div class="step-number">2</div>
+
           <div>
             <div class="step-title">Langkah 2 — Generate</div>
             <div class="helper">Klik untuk meminta paket konten dari Otak AI.</div>
@@ -592,7 +667,7 @@
       </section>
     </div>
   </div>
-
+ </div>
   <script src="app.js"></script>
 </body>
 </html>
