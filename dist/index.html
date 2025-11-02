@@ -19,6 +19,36 @@
       --danger-bg: linear-gradient(90deg,#fecaca,#fef3c7); /* red/yellow */
       --radius:12px;
     }
+    .logo-img {
+      width: 56px;      /* Samakan ukurannya dengan logo lama */
+      height: 56px;     /* Samakan ukurannya dengan logo lama */
+      border-radius: 10px; /* Beri sudut melengkung yang sama */
+      box-shadow: var(--shadow); /* Gunakan variabel shadow yang sudah ada */
+      object-fit: cover;   /* Pastikan gambar mengisi kotak tanpa distorsi */
+    }
+    /* --- (MULAI) KODE BARU UNTUK HEADER --- */
+
+    header {
+      display: flex; /* Gunakan flexbox untuk menata elemen */
+      align-items: center; /* Sejajarkan item secara vertikal di tengah */
+      gap: 16px; /* Beri jarak antara logo dan teks */
+      margin-bottom: 24px; /* Beri sedikit jarak di bawah header */
+    }
+
+    header h1 {
+      margin: 0; /* Hapus margin default pada h1 */
+      font-size: 2.25rem; /* Sesuaikan ukuran font jika perlu */
+      line-height: 1.2; /* Sesuaikan tinggi baris */
+    }
+
+    header .text-content p.lead {
+      margin-top: 4px; /* Beri sedikit jarak antara judul dan subtitle */
+      margin-bottom: 0; /* Hapus margin bawah default */
+      font-size: 1rem; /* Sesuaikan ukuran font jika perlu */
+      color: var(--muted); /* Gunakan warna muted yang sudah ada */
+    }
+
+    /* --- (SELESAI) KODE BARU --- */
 
     html,body{
       height:100%;
@@ -423,6 +453,71 @@
   display: none; /* Akan kita tampilkan via JS setelah login */
 }
 
+/* --- (MULAI) KODE BARU UNTUK LOGIN ELEGAN --- */
+
+/* Wrapper utama untuk form login */
+.login-container {
+  max-width: 600px;  /* Batasi lebar form */
+  margin: 48px auto;   /* Posisikan di tengah halaman */
+  padding: 28px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* Shadow yang lebih jelas */
+  border: 1px solid #e5e7eb;
+}
+
+/* Baris untuk input yang sejajar */
+.form-row-parallel {
+  display: flex;       /* Aktifkan Flexbox */
+  flex-wrap: wrap;     /* Izinkan wrap di layar kecil */
+  gap: 16px;         /* Jarak antar kolom input */
+  margin-top: 20px;
+  margin-bottom: 20px; /* Jarak ke tombol */
+}
+
+/* Grup untuk setiap input (label + text box) */
+.form-group {
+  flex: 1; /* Agar setiap grup mengambil ruang yang sama */
+  min-width: 200px; /* Lebar minimum sebelum wrap */
+  display: flex;
+  flex-direction: column; /* Susun label di atas text box */
+}
+
+.form-group label {
+  margin-bottom: 6px; /* Jarak dari label ke text box */
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input {
+  width: 100%; /* Pastikan input mengisi penuh grupnya */
+  box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+}
+
+/* Kontainer untuk tombol-tombol */
+.login-actions {
+  display: flex;
+  justify-content: flex-end; /* Posisikan tombol di kanan */
+  gap: 12px;
+}
+
+/* Atur ulang gaya tombol di dalam login-actions */
+.login-actions button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none;
+}
+#login-button { background: var(--accent); color: white; }
+#signup-button { background: #10B981; color: white; }
+#logout-button { background: #EF4444; color: white; }
+
+
+
+/* --- (SELESAI) KODE BARU --- */
 /* ▲▲▲ AKHIR CSS BARU ▲▲▲ */
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -430,57 +525,53 @@
 <body>
   <div class="container">
     <header>
-      <div class="logo">RC</div>
-      <div>
-  <h1>Rewired: Listing Composer</h1>
-  <p class="lead">Input data listing Anda, klik Generate, dan dapatkan paket amunisi konten siap pakai untuk pemasaran properti.</p>
-      </div>
-    </header>
-
-  <section class="step-container" id="auth-container">
-    <div id="login-form">
-      <div class="step-header">
-        <div class="step-number" style="background-color: rgba(107, 114, 128, 0.1); color: #4B5563;">🔒</div>
-        <div>
-          <div class="step-title" style="color: #374151; margin-top: 0; margin-bottom: 0;">Masuk atau Daftar (5 Kredit Gratis)</div>
-          <div class="helper" style="margin-top: 4px;">Anda harus login untuk mengakses Composer.</div>
-        </div>
-      </div>
-      
-      <div class="row" style="align-items: flex-end; margin-top: 16px;">
-        <div class="col">
-          <label for="auth-email" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 4px;">Email</label>
-          <input type="email" id="auth-email" placeholder="Email Anda">
-        </div>
-        <div class="col">
-          <label for="auth-password" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 4px;">Password (min. 6 karakter)</label>
-          <input type="password" id="auth-password" placeholder="Password Anda">
-        </div>
-      </div>
-      
-      <div class="actions" style="margin-top: 16px;">
-        <button id="login-button" style="background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; box-shadow: none;">Masuk</button>
-        <button id="signup-button" style="background: #10B981; color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; box-shadow: none;">Daftar</button>
-      </div>
-      <p id="auth-message" style="margin-top: 12px; margin-bottom: 0; color: #DC2626; font-weight: 600;"></p>
+    <img src="assets/logonya.png" alt="Rewired Composer Logo" class="logo-img">
+    <div class="text-content">
+        <h1>Rewired: Listing Composer</h1>
+        <p class="lead">Dapatkan paket amunisi konten siap pakai dan audit internal untuk pemasaran properti.</p>
     </div>
+</header>
 
-    <div id="user-session" style="display:none;">
-      <div class="step-header">
+  <section id="auth-container" style="display: none;">
+    <div class="login-container">
+        <h3>Masuk atau Daftar (5 Kredit Gratis)</h3>
+        <p class="helper">Anda harus login untuk mengakses Composer.</p>
+        
+        <div id="login-form"> <div class="form-row-parallel">
+                <div class="form-group">
+                    <label for="auth-email">Email</label>
+                    <input type="email" id="auth-email" placeholder="Email Anda" required>
+                </div>
+                <div class="form-group">
+                    <label for="auth-password">Password (min. 6 karakter)</label>
+                    <input type="password" id="auth-password" placeholder="Password Anda" required>
+                </div>
+            </div>
+            <div class="login-actions">
+                <button type="button" id="login-button">Masuk</button>
+                <button type="button" id="signup-button">Daftar</button>
+            </div>
+            <p id="auth-message" style="margin-top: 16px; text-align: right; color: #DC2626; font-weight: 600;"></p>
+        </div>
+    </div>
+</section>
+
+<div id="user-session" style="display: none;" class="step-container">
+    <div class="step-header">
         <div class="step-number" style="background-color: rgba(22, 163, 74, 0.1); color: #16A34A;">✓</div>
         <div>
-          <div class="step-title" style="color: #1F2937; margin-top: 0; margin-bottom: 0;">Anda Telah Masuk</div>
-          <p id="user-email-display" class="helper" style="font-size: 1rem; margin-top: 4px; color: var(--muted);">Selamat datang!</p>
+            <div class="step-title" style="color: #1F2937; margin-top: 0; margin-bottom: 0;">Selamat Datang</div>
+            <p id="user-email-display" class="helper" style="font-size: 1rem; margin-top: 4px; color: var(--muted);"></p>
         </div>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
-        <div id="credit-balance-display" style="font-size: 1.1rem; font-weight: 700;">
-          Sisa Kredit: <span style="color: var(--accent); font-size: 1.2rem;">Memuat...</span>
-        </div>
-        <button id="logout-button" style="background: #EF4444; color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; box-shadow: none;">Keluar</button>
-      </div>
     </div>
-  </section>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+        <div id="credit-balance-display" style="font-size: 1.1rem; font-weight: 700;">
+            Sisa Kredit: <span style="color: var(--accent); font-size: 1.2rem;">Memuat...</span>
+        </div>
+        <button id="logout-button">Keluar</button>
+    </div>
+</div>
+</section>
   <div class="steps">
     ```
 

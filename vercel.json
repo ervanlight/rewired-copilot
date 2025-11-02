@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/generate.js": {
+      "maxDuration": 58
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/dist/index.html"
+    }
+  ]
+}
