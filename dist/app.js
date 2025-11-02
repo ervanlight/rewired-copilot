@@ -242,37 +242,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk mengambil saldo kredit
     async function fetchCreditBalance(userId) {
-        if (!userId) return;
-        creditBalanceDisplay.textContent = 'Memuat...';
-        
-        try {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) throw new Error('Sesi tidak valid.');
+    if (!userId) return;
+    
+    // Targetkan HANYA angkanya, bukan seluruh div
+    const balanceSpan = document.querySelector('#credit-balance-display span');
+    if (balanceSpan) balanceSpan.textContent = 'Memuat...';
 
-            // Panggil fungsi Netlify ('getBalance')
-            const response = await fetch('/.netlify/functions/getBalance', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.access_token}` // Mengirim token
-                },
-                body: JSON.stringify({ userId: userId })
-            });
-            
-            if (!response.ok) throw new Error('Gagal mengambil data saldo.');
-            const data = await response.json();
-            
-            if (data.balance !== undefined) {
-                creditBalanceDisplay.textContent = data.balance;
-            } else {
-                creditBalanceDisplay.textContent = 'Error';
-            }
-        } catch (error) {
-            console.error('Error fetching balance:', error);
-            creditBalanceDisplay.textContent = 'Error';
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) throw new Error('Sesi tidak valid.');
+
+        // Panggil fungsi Vercel ('/api/getBalance')
+        const response = await fetch('/api/getBalance', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}` // Mengirim token
+            },
+            body: JSON.stringify({ userId: userId })
+        });
+        
+        if (!response.ok) {
+             const err = await response.json();
+             throw new Error(err.error || 'Gagal mengambil data saldo.');
+        }
+        
+        const data = await response.json();
+        
+        if (data.balance !== undefined) {
+            // Sukses
+            if (balanceSpan) balanceSpan.textContent = data.balance;
+        } else {
+            // Gagal (Ini adalah baris yang diperbaiki, 'balanceLocker' -> 'balanceSpan')
+            if (balanceSpan) balanceSpan.textContent = 'Error';
+        }
+    } catch (error) {
+        console.error('Error fetching balance:', error);
+        if (balanceSpan) {
+            balanceSpan.textContent = 'Error';
+            balanceSpan.style.color = '#EF4444'; // Ubah jadi merah
+        }
+        // Tampilkan error di pesan status utama
+        if(typeof setStatus === 'function') {
+            setStatus(error.message, true);
         }
     }
-
+}
     // Cek sesi saat halaman dimuat
     (async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -352,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (!session) throw new Error('Sesi Anda telah berakhir, silakan login ulang.');
 
-                const resp = await fetch('/.netlify/functions/generate', {
+                const resp = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
