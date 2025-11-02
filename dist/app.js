@@ -245,6 +245,31 @@ loginButton.addEventListener('click', async () => {
         
         authMessage.textContent = 'Logout berhasil.';
     });
+    // ▼▼▼ TAMBAHKAN BLOK INI ▼▼▼
+
+const forgotPasswordLink = document.getElementById('forgot-password-link');
+
+forgotPasswordLink.addEventListener('click', async (event) => {
+    event.preventDefault(); // Mencegah link me-refresh halaman
+
+    const email = prompt("Silakan masukkan email Anda untuk reset password:");
+    if (!email) return; // Hentikan jika pengguna membatalkan
+
+    authMessage.textContent = 'Mengirim instruksi reset...';
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password.html', // Halaman tujuan setelah klik link
+    });
+
+    if (error) {
+        authMessage.textContent = 'Error: ' + error.message;
+    } else {
+        authMessage.textContent = 'Instruksi reset telah dikirim! Silakan cek email Anda.';
+        authMessage.style.color = '#10B981';
+    }
+});
+
+// ▲▲▲ AKHIR TAMBAHAN ▲▲▲
 
     // GANTI SELURUH FUNGSI updateUI LAMA ANDA DENGAN VERSI BARU INI
 
