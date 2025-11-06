@@ -8,8 +8,6 @@ if (!SUPABASE_URL.includes('supabase.co') || !SUPABASE_ANON_KEY.startsWith('ey')
     alert('PENTING: CEO, Anda belum mengisi SUPABASE_URL dan SUPABASE_ANON_KEY di app.js baris 5 & 6.');
 }
 
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Variabel global untuk menyimpan data user
 let currentUserID = null;
@@ -19,6 +17,9 @@ let currentUserEmail = null;
 // ▼▼▼ PERBAIKAN: SEMUA KODE DIMASUKKAN KE DALAM 'DOMContentLoaded' ▼▼▼
 // =================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
     // Dapatkan elemen UI Global
     const authContainer = document.getElementById('auth-container');
